@@ -150,13 +150,40 @@ class Board {
     }
 
     /**
-     * Get path between to neuro
+     * Get path between two neuros
      * @param from 
      * @param to 
      */
     distanceBetween(from: Neuro, to: Neuro) {
         this.updatePaths();
         return this._getPathValue(from.id, to.id)
+    }
+
+    /** Get all shortest path between 2 neuros */
+    getPathBetween(from: Neuro, to: Neuro) {
+        const target = this.distanceBetween(from, to)
+        if (target === undefined) return undefined
+        const links = this._paths.filter(n => n.distance === 1)
+        const loop = (currentPoint: number, step: number, path: number[], visited: number[]) => {
+            const paths: (number[])[] = []
+            path.push(currentPoint)
+            visited.push(currentPoint)
+            links.filter(n => n.from === currentPoint || n.to === currentPoint)
+                .forEach(n => {
+                    const id = n.from === currentPoint ? n.to : n.from
+                    if( id === to.id ) {
+                        path.push(id)
+                        paths.push(path)
+                    }
+                    else if ( step + 1 <= target && !visited.includes(id) ) {
+                        loop(id, step + 1, Array.from(path), Array.from(visited)).forEach(p => paths.push(p))
+                    }
+                })
+            return paths
+        } 
+        const paths = loop(from.id, 0, [], [])
+        //Replace ID by cell
+        return paths.map(n => n.map(id => this._cells.find(c => c.neuro.id === id)))
     }
 
     /**

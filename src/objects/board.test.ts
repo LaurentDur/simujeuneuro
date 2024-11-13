@@ -271,7 +271,7 @@ test('Place on existing', () => {
 });
 
 
-test('Test Overclocked Paths', () => {
+test('Test Overclocked Distance', () => {
 
     const neuroA = new Neuro({
         color: 'green',
@@ -308,9 +308,10 @@ test('Test Overclocked Paths', () => {
     expect(board.distanceBetween(neuroB, neuroC)).toBe(1)
     expect(board.distanceBetween(neuroB, neuroC)).toBe(1)
     expect(board.distanceBetween(neuroA, neuroD)).toBe(undefined)
+
 });
 
-test('Test Paths 2 Cells', () => {
+test('Test Distance 2 Cells', () => {
 
     const neuroA = new Neuro({
         color: 'green',
@@ -327,7 +328,7 @@ test('Test Paths 2 Cells', () => {
     expect(board.distanceBetween(neuroA, neuroB)).toBe(undefined)
 });
 
-test('Test Paths 5 Cells', () => {
+test('Test Distance 5 Cells', () => {
 
     const neuroA = new Neuro({
         color: 'green',
@@ -388,4 +389,59 @@ test('Refresh on Neuro rotate', () => {
 
     neuroB.rotation = 3
     expect(board.distanceBetween(neuroA, neuroB)).toBe(1)
+});
+
+test('Test path', () => {
+
+    const neuroA = new Neuro({
+        color: 'green',
+        connections: [false,true,true,true,true,true]
+    })
+
+    const neuroB1 = new Neuro({
+        color: 'red',
+        connections: [true,true,true,true,true,true]
+    })
+    const neuroB2 = new Neuro({
+        color: 'black',
+        connections: [true,true,true,true,true,true]
+    })
+
+    const neuroC = new Neuro({
+        color: 'yellow',
+        connections: [true,true,true,true,true,true]
+    })
+    const neuroD = new Neuro({
+        color: 'black',
+        connections: [true,true,true,true,true,true]
+    })
+    const neuroE = new Neuro({
+        color: 'black',
+        connections: [true,true,true,true,true,true]
+    })
+
+    
+
+    const board = new Board()
+    board.placeNeuroAt(neuroA, 17, 17)
+    board.placeNeuroNear(neuroA, neuroB1, 'TR')
+    board.placeNeuroNear(neuroA, neuroB2, 'TL')
+
+    board.placeNeuroNear(neuroA, neuroC, 'T')
+    board.placeNeuroNear(neuroC, neuroD, 'T')
+    board.placeNeuroNear(neuroD, neuroE, 'T')
+
+    expect(board.distanceBetween(neuroA, neuroE)).toBe(4)
+    const paths = board.getPathBetween(neuroA, neuroE)
+    expect(paths).not.toBe(undefined)
+    expect(paths?.length).toBe(2)
+   
+    expect(board.getPathBetween(neuroB2, neuroB1)?.length).toBe(2)
+    expect(board.getPathBetween(neuroC, neuroE)?.length).toBe(1)
+
+    if (paths !== undefined) {
+        expect(paths[0][1]?.neuro.id === neuroB1.id || paths[0][1]?.neuro.id === neuroB2.id).toBeTruthy()
+        expect(paths[1][1]?.neuro.id === neuroB1.id || paths[1][1]?.neuro.id === neuroB2.id).toBeTruthy()
+        expect(paths[0][1]?.neuro.id !== paths[1][1]?.neuro.id).toBeTruthy()
+    }
 });
