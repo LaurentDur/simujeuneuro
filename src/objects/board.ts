@@ -1,4 +1,4 @@
-import { DIRECTION_MAP, IDirections } from "../types/ITypes"
+import { DIRECTION_MAP, DIRECTION_MIROR, IDirections } from "../types/ITypes"
 import Neuro from "./neuro"
 
 type ICell = { 
@@ -178,7 +178,8 @@ class Board {
                 if (cnt === true) {
                     const change = Board.convertDirectionToCoordinate(DIRECTION_MAP[ndx])
                     const nextNeuro = this.getNeuroAt(currentCell.x + change.x, currentCell.y + change.y)
-                    if (nextNeuro) {
+                    const mirorConnection = DIRECTION_MIROR[ndx]
+                    if (nextNeuro && nextNeuro.connections[mirorConnection] === true) {
                         this._setPathValue(currentCell.neuro.id, nextNeuro.id, 1)
                         this._setPathValue(parentCell.neuro.id, nextNeuro.id, distanceDone + 1)
 
