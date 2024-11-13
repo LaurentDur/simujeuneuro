@@ -1,7 +1,7 @@
 
 export type IConnections = [boolean,boolean,boolean,boolean,boolean,boolean]
 
-export type IColor = 'blue' | 'red' | 'yellow' | 'black' | 'pink' | 'green';
+export type IColor = 'blue' | 'red' | 'yellow' | 'purple' | 'green' | 'black';
 
 export type IRoration = 0 | 1 | 2 | 3 | 4 | 5;
 
