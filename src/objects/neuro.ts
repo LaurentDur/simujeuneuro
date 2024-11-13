@@ -2,6 +2,7 @@ import { rotateArray } from "../controllers/manip";
 import { IColor, IConnections, IRoration } from "../types/ITypes";
 
 let IDCOUNTER = 0
+type IRotateListener = (neuro: Neuro) => void
 
 class Neuro {
 
@@ -12,6 +13,8 @@ class Neuro {
     private _overclocked: boolean = false
 
     private _curConnections: IConnections
+
+    private _rotateListener: IRotateListener | undefined = undefined
 
     constructor({connections, color}: {connections: IConnections , color: IColor}) {
         this._connections = Array.from(connections) as IConnections
@@ -36,6 +39,10 @@ class Neuro {
         const temp = Array.from(this._connections) as IConnections
         rotateArray<boolean>( temp, rotation)
         this._curConnections = temp
+        // Trigger rotation listener
+        if (this._rotateListener !== undefined) {
+            this._rotateListener(this)
+        }
     }
     get rotation(): IRoration {
         return this._rotation
@@ -53,6 +60,13 @@ class Neuro {
         if (this._overclocked) return [true,true,true,true,true,true]
         return Array.from(this._curConnections) as IConnections
     }
+
+    // Listener
+    onRotate(fct: IRotateListener | undefined) {
+        this._rotateListener = fct
+    }
+
+
 }
 
 export default Neuro

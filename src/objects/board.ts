@@ -85,6 +85,9 @@ class Board {
         if (this.getNeuroAt(x,y) !== undefined) return false
         // First remove neuro if on board
         this.removeNeuro(neuro)
+        neuro.onRotate( (() => {
+            this._hasChanges = true
+        }).bind(this) );
         this._cells.push({
             neuro,
             x,
@@ -115,6 +118,7 @@ class Board {
         const ndx = this._cells.findIndex(n => n.x === x && n.y === y)
         if (ndx < 0) return undefined
         this._hasChanges = true
+        this._cells[ndx].neuro.onRotate( undefined ); // unbind
         return this._cells.splice(ndx, 1)[0].neuro
     }
 
@@ -169,6 +173,8 @@ class Board {
      */
     private updatePaths() {
         if (!this._hasChanges) return
+        
+        this._paths.length = 0
         const loop = (parentCell: ICell, currentCell: ICell, visited: number[]) => {
             const neighbour: ICell[] = []
             visited.push(currentCell.neuro.id)
@@ -201,7 +207,6 @@ class Board {
             loop( cell, cell, visited )
         }
         this._hasChanges = false;
-        
     }
 
     /**

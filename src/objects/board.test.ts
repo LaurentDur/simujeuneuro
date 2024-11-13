@@ -365,3 +365,27 @@ test('Test Paths 5 Cells', () => {
     expect(board.distanceBetween(neuroB, neuroE)).toBe(2)
     expect(board.distanceBetween(neuroA, neuroD)).toBe(undefined)
 });
+
+
+test('Refresh on Neuro rotate', () => {
+
+    const neuroA = new Neuro({
+        color: 'green',
+        connections: [true,false,false,false,false,false]
+    })
+    const neuroB = new Neuro({
+        color: 'red',
+        connections: [true,false,false,true,false,false]
+    })
+
+    const board = new Board()
+    board.placeNeuroAt(neuroA, 17, 17)
+    board.placeNeuroNear(neuroA, neuroB, 'T')
+    expect(board.distanceBetween(neuroA, neuroB)).toBe(1)
+
+    neuroB.rotation = 2
+    expect(board.distanceBetween(neuroA, neuroB)).toBe(undefined)
+
+    neuroB.rotation = 3
+    expect(board.distanceBetween(neuroA, neuroB)).toBe(1)
+});
