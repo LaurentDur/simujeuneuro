@@ -1,0 +1,26 @@
+{
+  "name": "simujeuneuro",
+  "version": "1.0.0",
+  "description": "",
+  "main": "build/index.ts",
+  "scripts": {
+    "start": "tsc && node ./build/index.js",
+    "test": "tsc && jest",
+    "build": "tsc && jest"
+  },
+  "jest": {
+    "verbose": true,
+    "coverageDirectory": "./build",
+    "moduleFileExtensions": ["js"]
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "jest": "^29.7.0",
+    "save-dev": "^0.0.1-security",
+    "typescript": "^5.6.3"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14"
+  }
+}
