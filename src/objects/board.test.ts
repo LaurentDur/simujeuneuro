@@ -445,3 +445,79 @@ test('Test path', () => {
         expect(paths[0][1]?.neuro.id !== paths[1][1]?.neuro.id).toBeTruthy()
     }
 });
+
+
+
+test('Available Cell when empty', () => {
+    
+    const board = new Board()
+    const cells = board.listAvailableCells()
+
+    expect(cells.length).toBe(1)
+    expect(cells[0].x).toBe(0)
+    expect(cells[0].y).toBe(0)
+
+})
+
+
+test('Available Cell when 1 cell', () => {
+
+    const neuroA = new Neuro({
+        color: 'green',
+        connections: [false,true,false,true,false,true]
+    })
+    
+    const board = new Board()
+    
+    board.placeNeuroAt(neuroA, 0, 0)
+    
+    const cells = board.listAvailableCells()
+    expect(cells.length).toBe(6)
+
+    
+    const test: {d: IDirections, x:number, y: number, c: boolean}[] = [
+        { d: "B", x: 0, y: 2, c: false },
+        { d: "BL", x: 1, y: 1, c: true },
+        { d: "TL", x: 1, y: -1, c: false },
+        { d: "T", x: 0, y: -2, c: true },
+        { d: "TR", x: -1, y: -1, c: false },
+        { d: "BR", x: -1, y: 1, c: true },
+    ]
+
+    test.forEach(t => {
+        expect(cells.find(c => c.x === t.x && c.y === t.y)?.neightboors.length).toBe(1)
+        expect(cells.find(c => c.x === t.x && c.y === t.y)?.neightboors[0].direction).toBe(t.d)
+        expect(cells.find(c => c.x === t.x && c.y === t.y)?.neightboors[0].connected).toBe(t.c)
+    })
+
+
+})
+
+
+test('Available Cell when 2 cell', () => {
+
+    const neuroA = new Neuro({
+        color: 'green',
+        connections: [false,true,false,true,false,true]
+    })
+    const neuroB = new Neuro({
+        color: 'red',
+        connections: [false,true,false,true,false,true]
+    })
+    
+    const board = new Board()
+    
+    board.placeNeuroAt(neuroA, 0, 0)
+    board.placeNeuroNear(neuroA, neuroB, 'TR')
+    
+    const cells = board.listAvailableCells()
+    expect(cells.length).toBe(8)
+
+    
+    expect(cells.find(c => c.x === 0 && c.y === 2)?.neightboors.length).toBe(2)
+    expect(cells.find(c => c.x === 1 && c.y === -1)?.neightboors.length).toBe(2)
+    expect(cells.find(c => c.x === 2 && c.y === 0)?.neightboors.length).toBe(1)
+
+    
+
+})

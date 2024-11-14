@@ -1,4 +1,5 @@
 import { GAME_PRESET } from "../config/preset"
+import Board from "../objects/board"
 import Neuro from "../objects/neuro"
 import Player from "../objects/player"
 import Project from "../objects/project"
@@ -8,28 +9,33 @@ import { randomPick, shuffleArray } from "./manip"
 class GameEngine {
     
     private _players: Player[] = []
+    private _neuroDiscard: Neuro[] = []
+    private _projectDrawPile: Project[] = []
+    private _projectDiscard: Project[] = []
     private _colorDrawPile: {
         color: IColor,
         deck: Neuro[],
     }[] = []
-    private _neuroDiscard: Neuro[] = []
-    private _projectDrawPile: Project[] = []
-    private _projectDiscard: Project[] = []
+    
+    board: Board;
 
     constructor(nbPLayer: number) {
+        this.board = new Board();
         this.initNewGame(nbPLayer)
     }
 
     /**
      * Get the number of player
      */
-    get nbPlayer() {
+    get nbPlayers() {
         return this._players.length
     }
 
-    /** Get the deck of a specific color */
-    getColorDeck(color: IColor) {
-        return this._colorDrawPile.find(n => n.color === color) || { color, deck: [] }
+    /**
+     * Get neuro for a color Draw pile
+     */
+    pickNeuro(color: IColor) {
+        return randomPick( this.getColorDrawPile(color).deck )
     }
 
     /**
@@ -56,6 +62,9 @@ class GameEngine {
         this._projectDiscard.length = 0
         this._neuroDiscard.length = 0
 
+        // Reset board
+        this.board = new Board();
+
         // Init player
         this._players.length = 0;
         Array.from({length: nbPLayer}).forEach(() => {
@@ -76,10 +85,7 @@ class GameEngine {
                             connections: neuroType.type
                         }) 
                     )
-
                 })
-
-
             })
         })
         this._colorDrawPile = GAME_PRESET.colors.map( color => {
@@ -90,6 +96,37 @@ class GameEngine {
                 deck
             }
         })
+    }
+
+    /**
+     * Refil the players hands up to GAME_PRESET.handSize.projects  cards.
+     */
+    phaseDrawProjects() {
+        this._players.forEach(player => {
+            while( player.handSize  < GAME_PRESET.handSize.projects ) {
+                player.addInHand( this.pickProject() )
+            }
+        })
+    }
+
+    /**
+     * Each player will pick and place a neuro
+     */
+    phasePlaceNeuro() {
+        
+    }
+
+    /**
+     * Check if a project has been completed
+     */
+    phaseCheckProjectsCompletion() {
+
+    }
+
+    
+    /** Get the deck of a specific color */
+    private getColorDrawPile(color: IColor) {
+        return this._colorDrawPile.find(n => n.color === color) || { color, deck: [] }
     }
 }
 

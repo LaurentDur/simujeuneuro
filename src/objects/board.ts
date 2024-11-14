@@ -1,10 +1,21 @@
 import { DIRECTION_MAP, DIRECTION_MIROR, IDirections } from "../types/ITypes"
 import Neuro from "./neuro"
 
-type ICell = { 
+export type ICell = { 
     neuro: Neuro,
     x: number,
     y: number,
+}
+
+type INeightboor = ICell & {
+    direction: IDirections,
+    connected: boolean,
+}
+
+type ICellsCandidate = {
+    x: number,
+    y: number,
+    neightboors: INeightboor[]
 }
 
 /**
@@ -27,6 +38,14 @@ class Board {
     private _hasChanges: boolean = false
 
     constructor() {
+    }
+
+    get nbCell() {
+        return this._cells.length
+    }
+
+    get cells() {
+        return Array.from(this._cells)
     }
 
     /**
@@ -184,6 +203,55 @@ class Board {
         const paths = loop(from.id, 0, [], [])
         //Replace ID by cell
         return paths.map(n => n.map(id => this._cells.find(c => c.neuro.id === id)))
+    }
+    
+    /**
+     * Detect all free cells of the board that are next to a filled cell
+     * These cells are the only options for the player.
+     */
+    listAvailableCells(): ICellsCandidate[] {
+        // When empty
+        if (this.nbCell === 0) {
+            return [
+                {
+                    x: 0, 
+                    y: 0,
+                    neightboors: []
+                }
+            ]
+        }
+
+        const list: ICellsCandidate[] = []
+        this._cells.forEach(cell => {
+            // crawl the 6 neightboors
+            DIRECTION_MAP.forEach((direction, i) => {
+                const coord = Board.convertDirectionToCoordinate(direction)
+                coord.x += cell.x
+                coord.y += cell.y
+                const neuro = this.getNeuroAt(coord.x, coord.y)
+                if (neuro === undefined) {
+                    const neightboor: INeightboor = {
+                        direction: DIRECTION_MAP[DIRECTION_MIROR[i]],
+                        x: cell.x,
+                        y: cell.y,
+                        neuro: cell.neuro,
+                        connected: cell.neuro.connections[i]
+                    }
+                    const entry = list.find(n => n.x === coord.x && n.y === coord.y)
+                    if ( entry === undefined) {
+                        list.push({
+                                ...coord,
+                                neightboors: [
+                                    neightboor
+                                ]
+                            })
+                    } else {
+                        entry.neightboors.push(neightboor)
+                    }
+                }
+            })
+        })
+        return list
     }
 
     /**
