@@ -12,7 +12,7 @@ class Project {
         this.id = (++IDCOUNTER)
     }
 
-    static generateFullDeck() {
+    static generateFullDrawPile() {
         const projectDeck: Project[] = []
         GAME_PRESET.colors.forEach(c1 => {
             GAME_PRESET.colors.forEach(c2 => {

@@ -18,12 +18,10 @@ export const GAME_PRESET: {
             weight: 4,
         },       
         { 
-        
             type: [true, true, false, true, false, false],
             weight: 4,
         },       
         { 
-        
             type: [true, false, true, false, true, false],
             weight: 4,
         },    
