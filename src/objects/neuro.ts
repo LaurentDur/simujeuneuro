@@ -61,6 +61,13 @@ class Neuro {
         return Array.from(this._curConnections) as IConnections
     }
 
+    /**
+     * Get connection with rotation = 0
+     */
+    getRawConnections() {
+        return Array.from(this._connections)
+    }
+
     // Listener
     onRotate(fct: IRotateListener | undefined) {
         this._rotateListener = fct

@@ -4,7 +4,8 @@ import Neuro from "../objects/neuro"
 import Player from "../objects/player"
 import Project from "../objects/project"
 import { IColor } from "../types/ITypes"
-import { randomPick, shuffleArray } from "./manip"
+import { getRotationCandidates } from "./boardengine"
+import { randomPick, selectRandom, shuffleArray } from "./manip"
 
 class GameEngine {
     
@@ -113,7 +114,21 @@ class GameEngine {
      * Each player will pick and place a neuro
      */
     phasePlaceNeuro() {
+        this._players.forEach(player => {
+
+            const candidates = this.board.listAvailableCells()
+            const color = selectRandom(GAME_PRESET.colors)
+            const neuro = this.pickNeuro(color)
+            const cell = selectRandom(candidates)
+            
+            if (cell.neightboors.length > 0) {
+                const rotates = getRotationCandidates(neuro, cell.neightboors[0].direction) 
+                if (rotates.length > 0) neuro.rotation = selectRandom(rotates)
+            }
         
+            this.board.placeNeuroAt(neuro, cell.x, cell.y)
+
+        })
     }
 
     /**
