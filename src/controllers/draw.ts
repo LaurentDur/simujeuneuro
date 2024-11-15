@@ -14,7 +14,7 @@ export function drawBoard(board: Board, size: number = 70) {
 <svg width="${Math.abs(maxX-minX + 2) * size}" height="${Math.abs(maxY-minY + 4) * size / 2}" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
     <g class="layer">
     ${cells.map(cell => {
-        return drawCell(cell.neuro, cell.x, cell.y, offset, size)
+        return drawCell(cell.neuro, cell.x, - cell.y, offset, size)
     }).join('')}
     </g>
 </svg>`
@@ -22,8 +22,8 @@ export function drawBoard(board: Board, size: number = 70) {
 }
 
 function drawCell(neuro: Neuro, x: number, y: number, offset: [number, number], size: number) {
-    const points = [[0,2],[1,1],[1,-1],[0,-2],[-1,-1],[-1,1]].map(n => n.map(n => n * size))
-    const corners = [[-0.3,0.90],[0.3,0.90],[0.6,0],[0.3,-0.90],[-0.3,-0.90],[-0.6,0]].map(n => n.map(n => n * size))
+    const points = [[0,-2],[1,-1],[1,1],[0,2],[-1,1],[-1,-1]].map(n => n.map(n => n * size))
+    const corners = [[-0.3,-0.90],[0.3,-0.90],[0.6,0],[0.3,0.90],[-0.3,0.90],[-0.6,0]].map(n => n.map(n => n * size))
     const center = [x+offset[0], y+offset[1]].map(n => n * size)
     let svg = `<polygon 
         edge="1" 
