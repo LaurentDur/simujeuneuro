@@ -3,8 +3,8 @@ import Board from "../objects/board"
 import Neuro from "../objects/neuro"
 import Player from "../objects/player"
 import Project from "../objects/project"
-import { IColor } from "../types/ITypes"
-import { getRotationCandidates } from "./boardengine"
+import { IColor, IRoration } from "../types/ITypes"
+import { getRotationCandidates, ICellCandidates, listProjectNeuroCandidates, search3ColorsProjectMatch } from "./boardengine"
 import { randomPick, selectRandom, shuffleArray } from "./manip"
 
 class GameEngine {
@@ -30,6 +30,10 @@ class GameEngine {
      */
     get nbPlayers() {
         return this._players.length
+    }
+
+    get players() {
+        return Array.from(this._players)
     }
 
     /**
@@ -116,16 +120,41 @@ class GameEngine {
     phasePlaceNeuro() {
         this._players.forEach(player => {
 
-            const candidates = this.board.listAvailableCells()
-            const color = selectRandom(GAME_PRESET.colors)
+            let cndts: ICellCandidates[] = [];
+            player.getHand().forEach(project => {
+                cndts.push( ...listProjectNeuroCandidates(this.board, project) )
+            })
+            cndts = cndts.length === 0 ? [] : cndts.filter(n => n.priority === cndts[0].priority)
+            // console.log(cndts.length, cndts[0]);
+
+            // Choose a color to pick up
+            const selected = selectRandom(cndts)
+            // Get neuro in draw pile
+            const color = selected.color
             const neuro = this.pickNeuro(color)
-            const cell = selectRandom(candidates)
+
+            // Choose a free cell
+            const cell = selectRandom( cndts.filter(n => n.color === color) )
             
-            if (cell.neightboors.length > 0) {
-                const rotates = getRotationCandidates(neuro, cell.neightboors[0].direction) 
-                if (rotates.length > 0) neuro.rotation = selectRandom(rotates)
-            }
+            // Choose the best rotation
+            const rotationOptions = cell.connectionNeeds.map(n => {
+                const rotas: IRoration[] = []
+                n.forEach(d => {
+                    getRotationCandidates(neuro, d).forEach(cd => {
+                        if (!rotas.includes(cd)) rotas.push(cd)
+                    })
+                })
+                return rotas
+            }).sort((a,b) => b.length - a.length)
+
+            let rOptions: IRoration[] = rotationOptions.length === 1 ? 
+                                rotationOptions[0] : 
+                                rotationOptions[0].filter(n => rotationOptions[1].includes(n));
+
+            if (rOptions.length === 0) rOptions = [0,1,2,3,4,5];
+            neuro.rotation = selectRandom(rOptions)
         
+            // Place the neuro
             this.board.placeNeuroAt(neuro, cell.x, cell.y)
 
         })
@@ -136,9 +165,19 @@ class GameEngine {
      */
     phaseCheckProjectsCompletion() {
 
+        this._players.forEach(player => {
+            const opt = player.getHand().filter(project => {
+                const ok = search3ColorsProjectMatch(this.board, project)
+                return ok.length > 0
+            })
+            if (opt.length > 0) {
+                const prj = selectRandom(opt)
+                player.validateProject(prj)
+            }
+        })
+
     }
 
-    
     /** Get the deck of a specific color */
     private getColorDrawPile(color: IColor) {
         return this._colorDrawPile.find(n => n.color === color) || { color, deck: [] }

@@ -7,7 +7,7 @@ export type ICell = {
     y: number,
 }
 
-type INeightboor = ICell & {
+export type INeightbor = ICell & {
     direction: IDirections,
     connected: boolean,
 }
@@ -15,7 +15,7 @@ type INeightboor = ICell & {
 type ICellsCandidate = {
     x: number,
     y: number,
-    neightboors: INeightboor[]
+    neightboors: INeightbor[]
 }
 
 /**
@@ -230,7 +230,7 @@ class Board {
                 coord.y += cell.y
                 const neuro = this.getNeuroAt(coord.x, coord.y)
                 if (neuro === undefined) {
-                    const neightboor: INeightboor = {
+                    const neightboor: INeightbor = {
                         direction: DIRECTION_MAP[DIRECTION_MIROR[i]],
                         x: cell.x,
                         y: cell.y,
@@ -252,6 +252,31 @@ class Board {
             })
         })
         return list
+    }
+
+    /**
+     * List all neighbors of a cell
+     */
+    neighborOf(x: number, y: number) {
+
+        const list: (Omit<INeightbor, 'neuro'> & {
+            neuro?: Neuro
+        })[] = []
+        
+        DIRECTION_MAP.forEach((direction, i) => {
+            const coord = Board.convertDirectionToCoordinate(direction)
+            coord.x += x
+            coord.y += y
+            const neuro = this.getNeuroAt(coord.x, coord.y)
+            list.push({
+                direction,
+                ...coord,
+                neuro,
+                connected: neuro ? neuro.connections[DIRECTION_MIROR[i]] : false
+            })
+        })
+
+        return list;
     }
 
     /**

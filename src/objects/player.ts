@@ -19,6 +19,14 @@ class Player {
         return this._hand.length
     }
 
+    get nbCompleted() {
+        return this._completed.length
+    }
+
+    get completed() {
+        return Array.from(this._completed)
+    }
+
     /**
      * List cards in hand
      */

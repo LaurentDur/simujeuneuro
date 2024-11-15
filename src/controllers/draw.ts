@@ -8,7 +8,7 @@ export function drawBoard(board: Board, size: number = 70) {
     const minY = cells.reduce((prev, curr) => curr.y < prev ? curr.y : prev, 0)
     const maxX = cells.reduce((prev, curr) => curr.x > prev ? curr.x : prev, 0)
     const maxY = cells.reduce((prev, curr) => curr.y > prev ? curr.y : prev, 0)
-    const offset: [number, number] = [-1 * minX + 1, -1 * minY + 2]
+    const offset: [number, number] = [Math.abs(minX) + 1, Math.abs(maxY) + 2]
 
     return `<?xml version="1.0"?>
 <svg width="${Math.abs(maxX-minX + 2) * size}" height="${Math.abs(maxY-minY + 4) * size / 2}" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">

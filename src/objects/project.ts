@@ -5,11 +5,15 @@ let IDCOUNTER = 0
 
 class Project {
     readonly id
-    readonly colors: [IColor, IColor, IColor]
+    private _colors: [IColor, IColor, IColor]
 
     constructor(c1: IColor, c2: IColor, c3: IColor) {
-        this.colors = [c1, c2, c3]
+        this._colors = [c1, c2, c3]
         this.id = (++IDCOUNTER)
+    }
+
+    get colors() {
+        return Array.from(this._colors)
     }
 
     static generateFullDrawPile() {
