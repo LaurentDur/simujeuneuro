@@ -33,6 +33,9 @@ class Player {
         this._hand.push(project)
     }
 
+    /**
+     * Remove project from hand and store it in completed list
+     */
     validateProject(project: Project) {
         if (this.removeFromHand(project) === false) throw new Error('This project is not in this player\'s hand')
         this._completed.push(project)

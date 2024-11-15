@@ -1,4 +1,5 @@
 
+import { drawBoard } from "./controllers/draw";
 import GameEngine from "./controllers/gameengine";
 
 
@@ -17,3 +18,5 @@ const p = game.board.getPathBetween(cls[0].neuro, cls[1].neuro)
 console.log(d, p);
 
 console.log(cls.map(n => n.neuro.color))
+
+console.log( drawBoard(game.board) )
