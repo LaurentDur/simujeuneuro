@@ -17,8 +17,10 @@ class GameEngine {
         color: IColor,
         deck: Neuro[],
     }[] = []
-    
+
+    log: string[] = []
     board: Board;
+
 
     constructor(nbPLayer: number) {
         this.board = new Board();
@@ -63,6 +65,7 @@ class GameEngine {
      * Reset all parameters for a new Game
      */
     initNewGame(nbPLayer: number) {
+        this.log.push("RESET")
         // Reset discards
         this._projectDiscard.length = 0
         this._neuroDiscard.length = 0
@@ -107,6 +110,7 @@ class GameEngine {
      * Refil the players hands up to GAME_PRESET.handSize.projects  cards.
      */
     phaseDrawProjects() {
+        this.log.push("phase DrawProjects")
         this._players.forEach(player => {
             while( player.handSize  < GAME_PRESET.handSize.projects ) {
                 player.addInHand( this.pickProject() )
@@ -118,14 +122,17 @@ class GameEngine {
      * Each player will pick and place a neuro
      */
     phasePlaceNeuro() {
+        this.log.push("phase PlaceNeuro")
         this._players.forEach(player => {
 
             let cndts: ICellCandidates[] = [];
             player.getHand().forEach(project => {
                 cndts.push( ...listProjectNeuroCandidates(this.board, project) )
             })
+            cndts.sort((a,b) => a.priority - b.priority)
             cndts = cndts.length === 0 ? [] : cndts.filter(n => n.priority === cndts[0].priority)
-            // console.log(cndts.length, cndts[0]);
+            
+            
 
             // Choose a color to pick up
             const selected = selectRandom(cndts)
@@ -153,9 +160,14 @@ class GameEngine {
 
             if (rOptions.length === 0) rOptions = [0,1,2,3,4,5];
             neuro.rotation = selectRandom(rOptions)
+
+            this.log.push(`Player ${player.id} has played ${neuro.color} (r:${neuro.rotation}) at (${cell.x}, ${cell.y}). [${neuro.connections.join(',')}]. Direction suggested: ${cell.connectionNeeds.map(n => n.join(','))}`)
         
             // Place the neuro
-            this.board.placeNeuroAt(neuro, cell.x, cell.y)
+            if( !this.board.placeNeuroAt(neuro, cell.x, cell.y) ) {
+                // console.log(cell)
+                throw new Error('This cell is not empty')
+            }
 
         })
     }
@@ -164,6 +176,7 @@ class GameEngine {
      * Check if a project has been completed
      */
     phaseCheckProjectsCompletion() {
+        this.log.push("phase CheckProjectsCompletion")
 
         this._players.forEach(player => {
             const opt = player.getHand().filter(project => {

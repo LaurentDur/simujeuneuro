@@ -79,7 +79,11 @@ export function listProjectNeuroCandidates(board: Board, project: Project): ICel
 
     // Search for ready projects
     exploreFrom.forEach(cell => {
-        const neighbors = board.neighborOf(cell.x, cell.y)
+        const neighbors = board.neighborOf(cell.x, cell.y).filter(n => {
+            if (!cell.neuro) return true;
+            const ndx = DIRECTION_MAP.indexOf(n.direction)
+            return cell.neuro.connections[ndx]
+        })
 
         const prevColor = neighbors.filter(n => n.neuro && n.neuro.color === colors[0])
         const nextColor = neighbors.filter(n => n.neuro && n.neuro.color === colors[2])
@@ -97,13 +101,18 @@ export function listProjectNeuroCandidates(board: Board, project: Project): ICel
                 })
             } else {
                 // Fill up cell with good colors around
-                pushInList({
-                    x: cell.x,
-                    y: cell.y,
-                    color: colors[1],
-                    connectionNeeds: [ prevColor.map(n => n.direction), nextColor.map(n => n.direction)],
-                    priority: 1 + (prevColor.filter(n => n.connected).length > 0 ? 0 : 1.5) + (nextColor.filter(n => n.connected).length > 0 ? 0 : 1.5),
-                    explain: 'Fill up cell with good colors around'
+                const hasEmpty = neighbors.filter(n => n.neuro === undefined)
+                
+                hasEmpty.forEach(ncell => {
+                    const dndx = DIRECTION_MAP.indexOf(ncell.direction)
+                    pushInList({
+                        x: ncell.x,
+                        y: ncell.y,
+                        color: colors[1],
+                        connectionNeeds: [ [ DIRECTION_MAP[DIRECTION_MIROR[dndx]] ] ],
+                        priority: 1 + (prevColor.filter(n => n.connected).length > 0 ? 0 : 1.5) + (nextColor.filter(n => n.connected).length > 0 ? 0 : 1.5),
+                        explain: 'Fill up cell with good colors around'
+                    })
                 })
             }
         } else if( prevColor.length > 0 || nextColor.length > 0 ) {
@@ -134,7 +143,7 @@ export function listProjectNeuroCandidates(board: Board, project: Project): ICel
             }
         } else {
             const has2Empty = neighbors.filter(n => n.neuro === undefined).length >= 2;
-            if (has2Empty) {
+            if (has2Empty && cell.neuro === undefined ) {
                 // Empty cell, no colors around, and at least 2 empty cell
                 colors.forEach(c => {
                     const dirs = neighbors.filter(n => n.neuro === undefined).map(n => n.direction)

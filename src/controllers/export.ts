@@ -28,6 +28,8 @@ export function exportCurrentGame(game: GameEngine) {
     fs.writeSync(file, `<h1>Board</h1>`)
     fs.writeSync(file, drawBoard(game.board))
 
+    fs.writeSync(file, `<h1>Log</h1>`)
+    fs.writeSync(file, Array.from(game.log).reverse().join('<br/>'))
     
     fs.writeSync(file, `<pre style='display:none'>${JSON.stringify(game.board.cells, null, 4)}</pre>`)
 
