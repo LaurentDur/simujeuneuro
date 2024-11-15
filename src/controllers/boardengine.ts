@@ -167,11 +167,19 @@ export function search3ColorsProjectMatch(board: Board, project: Project): ICell
     const list:ICell[][] = []
     // Search for ready projects
     cells.forEach(cell => {
-        const neighbors = board.neighborOf(cell.x, cell.y)
+        const neighbors = board.neighborOf(cell.x, cell.y).filter(n => {
+            const ndx = DIRECTION_MAP.indexOf(n.direction)
+            return cell.neuro.connections[ndx]
+        })
 
         const step1 = neighbors.find(n => n.neuro && n.neuro.color === colors[0] && n.connected)
         if (step1 !== undefined && step1.neuro !== undefined) {
-            const step3 = neighbors.find(n => n.neuro && n.neuro.color === colors[2] && n.connected && n.neuro.id !== step1.neuro?.id)
+            const step3 = neighbors.find(n => 
+                    n.neuro 
+                    && n.neuro.color === colors[2] 
+                    && n.connected 
+                    && n.neuro.id !== step1.neuro?.id
+                )
             if(step3 && step3.neuro) {
                 const obj: ICell[] = [
                     {
